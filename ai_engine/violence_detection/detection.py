@@ -38,11 +38,11 @@ class ViolenceDetection:
         xyxy = boxes.xyxy.tolist()
         for box, score, cls_id in zip(xyxy, conf_score, cls_index):
             if cls_id == 0:
-                plate = {"position": box, "score": score}
-                outputs["violence"].append(plate)
+                violence = {"position": box, "score": score}
+                outputs["violence"].append(violence)
             elif cls_id == 2:
-                car = {"position": box, "score": score}
-                outputs['person'].append(car)
+                person = {"position": box, "score": score}
+                outputs['person'].append(person)
         return outputs
     
     async def __call__(self, image: Union[PIL.Image.Image, np.ndarray, str]):

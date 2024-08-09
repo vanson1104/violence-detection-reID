@@ -1,3 +1,3 @@
-from .ai_system import ExtractID_engine
+from .ai_system import ExtractPerson_engine
 
-extract_id_engine = ExtractID_engine()
+extract_person_engine = ExtractPerson_engine()

@@ -1,11 +1,14 @@
 from typing import Any
+import matplotlib.pyplot as plt
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from .violence_detection import violence_detection
 # from person_reid import person_reid
 
-class ExtractID_engine:
+class ExtractPerson_engine:
     def __init__(self):
         self.violence_detection = violence_detection
         # self.person_reid = person_reid
+        self.visualize = True
 
     async def _detection(self, image: Any):
         try:
@@ -40,21 +43,35 @@ class ExtractID_engine:
         
         iou = area_inter / area_union if area_union != 0 else 0
         return iou
-    
-    def filter_boxes_with_iou(self, class1_boxes, class2_boxes, threshold_iou):
+
+    def _check_iou(self, box1, box2, threshold_iou):
+        return self._iou(box1, box2) > threshold_iou
+
+    def extrect_person_violence(self, violence_boxes, person_boxes, threshold_iou):
         """
-        Lọc các bounding boxes của class 2 dựa trên IOU với bất kỳ bounding box nào của class 1.
+        Extract_person_in_violence_event.
         """
-        filtered_boxes = []
-        for box2 in class2_boxes:
-            for box1 in class1_boxes:
-                if self._iou(box1, box2) > threshold_iou:
-                    filtered_boxes.append(box2)
+        violence_persons_boxes = []
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for box2 in person_boxes:
+                for box1 in violence_boxes:
+                    futures.append(executor.submit(self._check_iou, box1['position'], box2['position'], threshold_iou))
+            
+            for future in as_completed(futures):
+                if future.result():
+                    violence_persons_boxes.append(box2)
                     break
-        return filtered_boxes
+        return violence_persons_boxes
     
     async def __call__(self, image):
-        violence_person_det = await self._detection(image)
+        violence_det = await self._detection(image)
+        violence_person_det = self.extrect_person_violence(violence_det['violence'], violence_det['person'], 0.1)
+        if self.visualize:
+            plt.imshow(image)
+            for box in violence_person_det:
+                plt.plot([box[0], box[2], box[2], box[0], box[0]], [box[1], box[1], box[3], box[3], box[1]])
+            plt.show()
         return violence_person_det
 
 
@@ -85,6 +102,6 @@ class ExtractID_engine:
 #             elif bbox[j].cls == 2:
 #                 class2_boxes.append(bboxes) 
 #         # Lọc các bounding boxes của class 2
-#     filtered_boxes = filter_boxes_with_iou(class1_boxes, class2_boxes, threshold_iou)
+#     violence_persons_boxes = extrect_person_violence(class1_boxes, class2_boxes, threshold_iou)
     
-#     return filtered_boxes, class1_boxes
+#     return violence_persons_boxes, class1_boxes
