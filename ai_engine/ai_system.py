@@ -67,11 +67,6 @@ class ExtractPerson_engine:
     async def __call__(self, image):
         violence_det = await self._detection(image)
         violence_person_det = self.extrect_person_violence(violence_det['violence'], violence_det['person'], 0.1)
-        if self.visualize:
-            plt.imshow(image)
-            for box in violence_person_det:
-                plt.plot([box[0], box[2], box[2], box[0], box[0]], [box[1], box[1], box[3], box[3], box[1]])
-            plt.show()
         return violence_person_det
 
 
