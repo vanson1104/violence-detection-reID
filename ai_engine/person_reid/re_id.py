@@ -4,24 +4,9 @@ from .model import config
 
 class reID:
     def __init__(self, config: dict):
-        self.model_path = config["model_path"]
-        self.stride = config["stride"]
-        self.nclasses = config["nclasses"]
-        self.linear_num = config["linear_num"]
-        self.batchsize = config["batchsize"]
-        self.test_dir = config["test_dir"]
-        self.weights = config["weights"]
-        self.result_mat = config["result_mat"]
-        try:
-            self.model = self._load_model(self.model_path)
-        except Exception as e:
-            raise ValueError(f"Error loading reID model: {e}")
-
-        
+        pass
 
     def _load_model(self, model_path):
-        try: 
-            self.model = classifier.load_state_dict(torch.load(model_path))
         pass
 
 # image_datasets = {
