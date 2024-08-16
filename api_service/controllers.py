@@ -14,5 +14,3 @@ async def predict(data: RequestData):
     image = process_request_data(data)
     results = await extract_person_engine(image)
     return results
-
-

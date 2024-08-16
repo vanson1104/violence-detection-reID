@@ -3,22 +3,6 @@ from torchvision import models, transforms
 import torch.nn as nn
 from torch.nn import init
 
-def weights_init_classifier(m):
-    classname = m.__class__.__name__
-    if classname.find('Linear') != -1:
-        init.normal_(m.weight.data, std=0.001)
-        init.constant_(m.bias.data, 0.0)
-
-def weights_init_kaiming(m):
-    classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
-        init.kaiming_normal_(m.weight.data, a=0, mode='fan_in') # For old pytorch, you may use kaiming_normal.
-    elif classname.find('Linear') != -1:
-        init.kaiming_normal_(m.weight.data, a=0, mode='fan_out')
-    elif classname.find('BatchNorm1d') != -1:
-        init.normal_(m.weight.data, 1.0, 0.02)
-    if hasattr(m, 'bias') and m.bias is not None:
-        init.constant_(m.bias.data, 0.0)
 
 # |--Linear--|--bn--|--relu--|--Linear--|
 class ClassBlock(nn.Module):
@@ -37,15 +21,34 @@ class ClassBlock(nn.Module):
         if droprate>0:
             add_block += [nn.Dropout(p=droprate)]
         add_block = nn.Sequential(*add_block)
-        add_block.apply(weights_init_kaiming)
+        add_block.apply(self.weights_init_kaiming)
 
         classifier = []
         classifier += [nn.Linear(linear, class_num)]
         classifier = nn.Sequential(*classifier)
-        classifier.apply(weights_init_classifier)
+        classifier.apply(self.weights_init_classifier)
 
         self.add_block = add_block
         self.classifier = classifier
+
+    @staticmethod
+    def weights_init_classifier(m):
+        classname = m.__class__.__name__
+        if classname.find('Linear') != -1:
+            init.normal_(m.weight.data, std=0.001)
+            init.constant_(m.bias.data, 0.0)
+
+    @staticmethod
+    def weights_init_kaiming(m):
+        classname = m.__class__.__name__
+        if classname.find('Conv') != -1:
+            init.kaiming_normal_(m.weight.data, a=0, mode='fan_in') # For old pytorch, you may use kaiming_normal.
+        elif classname.find('Linear') != -1:
+            init.kaiming_normal_(m.weight.data, a=0, mode='fan_out')
+        elif classname.find('BatchNorm1d') != -1:
+            init.normal_(m.weight.data, 1.0, 0.02)
+        if hasattr(m, 'bias') and m.bias is not None:
+            init.constant_(m.bias.data, 0.0)
 
     def forward(self, x):
         x = self.add_block(x)
@@ -87,9 +90,3 @@ class ft_net(nn.Module):
         x = x.view(x.size(0), x.size(1))
         x = self.classifier(x)
         return x
-
-data_transforms = transforms.Compose([
-    transforms.Resize((256, 128), interpolation=3),
-    transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-])

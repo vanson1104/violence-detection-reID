@@ -2,12 +2,12 @@ from typing import Any
 import matplotlib.pyplot as plt
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from .violence_detection import violence_detection
-# from person_reid import person_reid
+from .person_reid import person_reid
 
 class ExtractPerson_engine:
     def __init__(self):
         self.violence_detection = violence_detection
-        # self.person_reid = person_reid
+        self.person_reid = person_reid
         self.visualize = True
 
     async def _detection(self, image: Any):
@@ -17,12 +17,12 @@ class ExtractPerson_engine:
         except Exception as e:
             raise ValueError(f"Error in detect violence: {e}")
 
-    # async def _person_reid(self, image: Any):
-    #     try:
-    #         reid_res = await self.person_reid(image)
-    #         return reid_res
-    #     except Exception as e:
-    #         raise ValueError(f"Error in person reid: {e}")
+    async def _person_reid(self, id_person: list):
+        try:
+            reid_res = await self.person_reid(id_person)
+            return reid_res
+        except Exception as e:
+            raise ValueError(f"Error in person reid: {e}")
         
     @staticmethod
     def _iou(box1, box2):
@@ -67,36 +67,5 @@ class ExtractPerson_engine:
     async def __call__(self, image):
         violence_det = await self._detection(image)
         violence_person_det = self.extrect_person_violence(violence_det['violence'], violence_det['person'], 0.1)
-        return violence_person_det
-
-
-
-
-
-
-# ### Violecne detection
-
-# def load_and_predict(image_path, model, threshold_iou = None, threshold_conf = None, threshold_nms = None, imgsz = None):
-#     """
-#     Chạy mô hình YOLO với ảnh đầu vào, sau đó lọc các bounding box của class 2 dựa trên IOU với class 1.
-#     """
-#     # Load mô hình YOLOv5 từ file trọng số đã được huấn luyện trước
-#     # model = YOLO(model_path)
-
-#     # Chạy mô hình với ảnh đầu vào
-#     results = model(image_path, iou = threshold_nms, conf = threshold_conf, imgsz=imgsz)
-#     class1_boxes = []
-#     class2_boxes = []
-#     for result in results:
-#         bbox = result.boxes
-#         for j in range(len(bbox)):
-#             bboxes = [int(i) for i in bbox[j].xyxy[0].tolist()]
-#             # Phân loại và chuyển đổi bounding boxes
-#             if bbox[j].cls == 0:
-#                 class1_boxes.append(bboxes)
-#             elif bbox[j].cls == 2:
-#                 class2_boxes.append(bboxes) 
-#         # Lọc các bounding boxes của class 2
-#     violence_persons_boxes = extrect_person_violence(class1_boxes, class2_boxes, threshold_iou)
-    
-#     return violence_persons_boxes, class1_boxes
+        results = await self._person_reid(violence_person_det)
+        return results
