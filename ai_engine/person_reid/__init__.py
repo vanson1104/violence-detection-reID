@@ -1,4 +1,4 @@
-from person_reid import ReID
+from .re_id import reID
 from .config import CONFIG
 
-person_reid = ReID(CONFIG)
+person_reid = reID(CONFIG)

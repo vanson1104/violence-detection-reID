@@ -4,6 +4,6 @@ CONFIG = {
     "linear_num": 512,
     "batchsize": 64,
     "test_dir": "./pytorch_PersonReID_infermydata",
-    "model_path": "./weights/weights-reid/net_300.pth",
-    "result_mat": "./weights/weights-reid/pytorch_result.mat"
+    "model_path": "./weights/weight-reid/net_300.pth",
+    "result_mat": "./weights/weight-reid/pytorch_result.mat"
 }

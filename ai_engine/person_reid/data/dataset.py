@@ -36,6 +36,9 @@ dataloaders = {
     }
 
 result = scipy.io.loadmat(result_mat)
-gallery_feature = torch.FloatTensor(result["gallery_f"]).cuda()
+if torch.cuda.is_available():
+    gallery_feature = torch.FloatTensor(result["gallery_f"]).cuda()
+else:
+    gallery_feature = torch.FloatTensor(result["gallery_f"])
 gallery_cam = result["gallery_cam"][0]
 gallery_label = result["gallery_label"][0]
