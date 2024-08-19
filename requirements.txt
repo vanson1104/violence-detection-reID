@@ -1,0 +1,10 @@
+opencv-python
+torch 
+numpy
+scipy
+streamlit
+gunicorn
+uvicorn
+torchvision
+ultralytics
+fastapi
