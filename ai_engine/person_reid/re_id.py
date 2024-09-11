@@ -112,11 +112,4 @@ class reID:
             query_path, _ = image_datasets["query"].imgs[i]
             
             result.append(query_path)
-            
-            # Display the result using cv2
-            img = cv2.imread(query_path)
-            cv2.imshow("Result", img)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
-            
         return result
